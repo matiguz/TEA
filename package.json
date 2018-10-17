@@ -1,22 +1,16 @@
 {
-  "name": "tea",
-  "version": "1.0.0",
-  "description": "## Index * [Prerequisites](#prerequisites) * [Installation](#installation) * [Next step](#next-step)",
-  "main": "index.js",
+  "name": "TEA",
+  "version": "0.1.0",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/matiguz/TEA.git"
-  },
-  "bugs": {
-    "url": "https://github.com/matiguz/TEA/issues"
-  },
-  "homepage": "https://github.com/matiguz/TEA#readme"
+  "author": "TEA",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "errorhandler": "^1.5.0",
+    "express": "^4.8.5",
+    "morgan": "^1.9.1"
+  }
 }
