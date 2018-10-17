@@ -13,7 +13,7 @@
 
 ```
 $> git clone https://github.com/matiguz/TEA.git
-$> cd ing-test-backend
+$> cd TEA
 $> npm install
 ```
 
