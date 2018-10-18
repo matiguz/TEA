@@ -12,7 +12,6 @@ var app = express();
 const router = express.Router();
 
 dotenv.load();
-
 /** set up routes {API Endpoints} */
 routes(router)
 
