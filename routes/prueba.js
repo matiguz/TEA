@@ -12,5 +12,9 @@ module.exports = (router) => {
     
     router
         .route('/pruebaSus')
-        .get(pruebaController.pruebaSus)
+        .post(pruebaController.pruebaSus)
+
+    router
+        .route('/meta')
+        .get(pruebaController.meta)
 }

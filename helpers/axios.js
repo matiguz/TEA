@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 /*CONFIGURO PROXY PARA SALIR DE LA EMPRESA*/
-let inst = axios.create({
+let inst = axios/*.create({
     proxy: {
         host: 'proxysis.corp.ute.com.uy',
         port: 8080,
@@ -11,5 +11,5 @@ let inst = axios.create({
         }
     }
 });
-
+*/
 exports.inst = inst;

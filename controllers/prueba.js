@@ -8,8 +8,8 @@ module.exports = {
     ***/
     
     prueba: (req, res) => {
-
-     axios.inst.get('http://tea.ddns.net:1026/v2/entities?type=Bus&limit=10')
+      
+     axios.inst.get('http://192.168.56.101:1026/v2/entities?type=Bus&limit=10')
       .then(function (response) {
           console.log(response.data.length);
       })
@@ -17,7 +17,7 @@ module.exports = {
           console.log(error);
       });
 
-      axios.inst.get('http://tea.ddns.net/api/trayectosporlinea')
+      axios.inst.get('http://192.168.56.101/api/trayectosporlinea')
         .then(function (response) {
             console.log(response.data.trayectos.length);
         })
@@ -25,17 +25,21 @@ module.exports = {
             console.log(error);
         });
 
-        /*axios.inst({
+     /**/    axios.inst({
             method: 'post',
-            url: 'http://tea.ddns.net:1026/v2/subscriptions',
+            url: 'http://192.168.56.101:1026/v2/subscriptions',
             data: {
                 "subject": {
                     "entities": [
-                      {
-                        "id": "241",
-                        "type": "Bus"
+                      { 
+                        "idPattern":".*",
+                        "type": "Bus",
+                        "attrs": [
+                          {"linea":"7516"}
+                        ]
                       }
                     ],
+                    
                     "condition": {
                       "attrs": [
                         "location"
@@ -44,20 +48,23 @@ module.exports = {
                 },
               "notification": {
                 "http": {
-                  "url": "http://localhost:3001/pruebaSus"
+                  "url": "http://192.168.56.1:3001/pruebaSus"
                 },
                 "attrs": [
-                  "location"
+                  "location",
+                  "id",
+                  "linea"
                 ]
               }
             }
-          });*/
-        /*
-          axios.inst({
+          }).catch(function (error) {
+            console.log(error);
+        });
+        
+        /*  axios.inst({
             method: 'delete',
-            url: 'http://tea.ddns.net:1026/v2/subscriptions/5bcf1d824429266f75068d11'
+            url: 'http://192.168.56.101:1026/v2/subscriptions/5bcfa3b304a44ed51c2bf75e'
           });*/
-
         let result = geoLib.distance({
             p1: { lat: -34.7844931, lon: -56.2239004 },
             p2: { lat: -34.799506, lon: -56.228390 }
@@ -68,6 +75,33 @@ module.exports = {
 
     pruebaSus: (req, res) => {
 
-        console.log(res);
-    }
+        console.log(req.body.data[0].location.value);
+        res.send("bien");
+    },
+
+    meta: (req, res) => {
+      axios.inst({
+        method: 'post',
+        url: 'http://192.168.56.101:1026/v2/op/query',
+        data: {
+          "entities": [
+            {
+              "idPattern": ".*"
+            }
+          ],
+          "attrs": [
+            "linea"
+          ],
+          "expression": {
+            "q": "linea=='241'"
+          }
+        } 
+        
+      }).then(function (response) {
+        console.log(response.data[0].linea);
+    }).catch(function (error) {
+        console.log(error);
+    });
+      res.send("puto")
+  }
 }
