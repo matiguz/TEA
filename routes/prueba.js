@@ -9,4 +9,8 @@ module.exports = (router) => {
     router
         .route('/prueba')
         .get(pruebaController.prueba)
+    
+    router
+        .route('/pruebaSus')
+        .get(pruebaController.pruebaSus)
 }
