@@ -3,23 +3,31 @@ const _ = require('lodash');
 
 const externalURL = process.env.API_URL
 
+const getParadasParaLinea = (linea) => {
+    return axios.inst.get(`${externalURL}/api/trayectosporlinea`)
+    .then((response) => {
+        const trayectos = response.data.trayectos;
+        const paradas = _.filter(trayectos, (parada) => {
+            return parada.linea == linea;
+        });
+
+        return paradas;
+    })
+    .catch((error) => {
+        return null;
+    });
+}
+
 module.exports = {
     paradasParaLinea: (req, res) => {
         const linea = req.params.id_linea;
-        console.log("linea: " + linea);
-
-        axios.inst.get(`${externalURL}/api/trayectosporlinea`)
-        .then((response) => {
-            const trayectos = response.data.trayectos;
-            const trayectosParaLinea = _.filter(trayectos, (parada) => {
-                return parada.linea == linea;
-            });
-
-            res.send(trayectosParaLinea);
+        
+        getParadasParaLinea(linea)
+        .then((paradas) => {
+            res.send(paradas);
         })
         .catch((error) => {
-            console.log(error);
-            res.send();
+            res.send([]);
         });
     },
 
