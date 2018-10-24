@@ -25,5 +25,48 @@ module.exports = {
         .catch((error) => {
             res.send([]);
         });
+    },
+    omnibusParaLineaEnRadio: (req,res) => {
+        
+        const centro = req.body.centro;
+        const radio = req.body.radio;
+        const linea = req.body.linea;
+        
+        
+        axios.inst({
+            method: 'post',
+            url: `${externalURL}:1026/v1/queryContext`,
+            data: {
+              "entities": [
+                {
+                    "type": "Bus",
+                    "isPattern": "true",
+                    "id": ".*"
+                }
+            ],
+            "restriction": {
+                "scopes": [
+                    {
+                        "type": "FIWARE::Location",
+                        "value": {
+                            "circle": {
+                                "centerLatitude": `${centro.lat}`,
+                                "centerLongitude": `${centro.lon}`,
+                                "radius": `${radio}`
+                            }
+                        }
+                    },
+                    {
+                      "type": "FIWARE::StringQuery",
+                      "value": `linea=='${linea}'`
+                    }
+                ]
+            }
+          }
+        }).then(function (response) {
+            res.send(response.data.contextResponses);    
+      }).catch(function (error) {
+            console.log(error);
+    });
     }
 }

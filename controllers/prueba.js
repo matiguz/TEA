@@ -1,6 +1,9 @@
 let geoLib = require('geo-lib');
 const axios = require('../helpers/axios');
 
+const controllerCoordenadas = require('./coordenadas')
+const controllerOmnibus = require('./omnibus')
+
 const externalURL = process.env.API_URL
 const observerURL = process.env.SERVER_URL
 const serverURL = process.env.SERVER_URL
@@ -86,6 +89,14 @@ module.exports = {
             url: `${externalURL}:1026/v2/subscriptions/5bd0b719a0a51b54fa37de74`
           });*/
 
+          /*let a = controllerCoordenadas.puntoMedio({lat: -34.7844931,lon: -56.2239004},{lat: -34.799506,lon: -56.228390})
+          console.log(a);
+*/
+  /*        controllerOmnibus.omnibusParaLineaEnRadio({lat:-34.7782030444606,lon:-56.137229843163},30000,522).then((response)=>{
+              console.log(response);
+            }
+          );
+/*
           axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v1/queryContext`,
@@ -121,7 +132,7 @@ module.exports = {
       }).catch(function (error) {
             console.log(error);
         });
-
+*/
           
         let result = geoLib.distance({
             p1: {

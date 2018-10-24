@@ -14,4 +14,5 @@ module.exports = (router) => {
     router.route('/nextBus/:id_linea/:id_parada').get(lineasController.calcularTeaProximoOmnibus)
     router.route('/lineas/:id_linea').get(lineasController.paradasParaLinea)
     router.route('/omnibus/:id_linea').get(omnibusController.omnibusParaLinea)
+    router.route('/paraLineaEnRadio').post(omnibusController.omnibusParaLineaEnRadio)
 }
