@@ -3,6 +3,7 @@ const axios = require('../helpers/axios');
 
 const externalURL = process.env.API_URL
 const observerURL = process.env.SERVER_URL
+const serverURL = process.env.SERVER_URL
 
 if (!externalURL) {
     console.log("Please create an .env file in the root folder of the project and set a API_URL var");
@@ -40,17 +41,23 @@ module.exports = {
                 console.log(error);
             });
 
-        axios.inst({
+            axios.inst.get(`${serverURL}/omnibus/522`)
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+
+         axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v2/subscriptions`,
             data: {
                 "subject": {
                     "entities": [{
-                        "idPattern": ".*",
+                        "id": "20",
                         "type": "Bus",
-                        "attrs": [{
-                            "linea": "7516"
-                        }]
                     }],
 
                     "condition": {
@@ -61,7 +68,7 @@ module.exports = {
                 },
                 "notification": {
                     "http": {
-                        "url": observerURL
+                        "url": observerURL+"/pruebaSus"
                     },
                     "attrs": [
                         "location",
@@ -73,11 +80,11 @@ module.exports = {
         }).catch(function (error) {
             console.log(error);
         });
-
-        /*  axios.inst({
+        
+          axios.inst({
             method: 'delete',
-            url: '${url}:1026/v2/subscriptions/5bcfa3b304a44ed51c2bf75e'
-          });*/
+            url: `${externalURL}:1026/v2/subscriptions/5bd0b60ea0a51b54fa37de73`
+          });
         let result = geoLib.distance({
             p1: {
                 lat: -34.7844931,
@@ -94,6 +101,22 @@ module.exports = {
 
     pruebaSus: (req, res) => {
         console.log(req.body.data[0].location.value);
+        //console.log(req.body.data.length);
+        for (let i = 0; i < req.body.data.length; i++) {
+          let result = geoLib.distance({
+              p1: {
+                  lat: -34.7782030444606,
+                  lon: -56.137229843163
+              },
+              p2: {
+                  lat: req.body.data[i].location.value.coordinates[1],
+                  lon: req.body.data[i].location.value.coordinates[0]
+              }
+          });
+          console.log(result);
+          
+        }
+        
         res.send("bien");
     },
 

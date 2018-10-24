@@ -1,5 +1,6 @@
 const pruebaController = require('../controllers/prueba')
 const lineasController = require('../controllers/lineas')
+const omnibusController = require('../controllers/omnibus')
 
 module.exports = (router) => {
 
@@ -12,4 +13,5 @@ module.exports = (router) => {
     router.route('/meta').get(pruebaController.meta)
     router.route('/nextBus/:id_linea/:id_parada').get(lineasController.calcularTeaProximoOmnibus)
     router.route('/lineas/:id_linea').get(lineasController.paradasParaLinea)
+    router.route('/omnibus/:id_linea').get(omnibusController.omnibusParaLinea)
 }
