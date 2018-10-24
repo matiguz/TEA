@@ -4,7 +4,8 @@ var logger          = require('morgan'),
     express         = require('express'),
     errorhandler    = require('errorhandler'),
     dotenv          = require('dotenv'),
-    bodyParser      = require('body-parser')
+    bodyParser      = require('body-parser'),
+    dotEnv          = require('dotenv').config()
 
 const routes = require('./routes/')
 
