@@ -10,5 +10,5 @@ module.exports = (router) => {
     router.route('/prueba').get(pruebaController.prueba)
     router.route('/pruebaSus').post(pruebaController.pruebaSus)
     router.route('/meta').get(pruebaController.meta)
-    router.route('/lineas/:id').post(lineasController.calcularTeaProximoOmnibus)
+    router.route('/nextBus/:id_linea/:id_parada').get(lineasController.calcularTeaProximoOmnibus)
 }
