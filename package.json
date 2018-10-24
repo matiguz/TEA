@@ -14,6 +14,7 @@
     "errorhandler": "^1.5.0",
     "express": "^4.8.5",
     "geo-lib": "^0.3.1",
+    "lodash": "4.17.11",
     "morgan": "^1.9.1"
   },
   "devDependencies": {
