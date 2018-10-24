@@ -25,7 +25,7 @@ module.exports = {
      ***/
 
     prueba: (req, res) => {
-        axios.inst.get(`${externalURL}:1026/v2/entities?type=Bus&limit=10`)
+ /*       axios.inst.get(`${externalURL}:1026/v2/entities?type=Bus&limit=10`)
             .then(function (response) {
                 console.log(response.data.length);
             })
@@ -49,8 +49,8 @@ module.exports = {
                 console.log(error);
             });
 
-
-         axios.inst({
+*/
+         /*axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v2/subscriptions`,
             data: {
@@ -79,12 +79,50 @@ module.exports = {
             }
         }).catch(function (error) {
             console.log(error);
-        });
+        });*/
         
-          axios.inst({
+          /*axios.inst({
             method: 'delete',
-            url: `${externalURL}:1026/v2/subscriptions/5bd0b60ea0a51b54fa37de73`
-          });
+            url: `${externalURL}:1026/v2/subscriptions/5bd0b719a0a51b54fa37de74`
+          });*/
+
+          axios.inst({
+            method: 'post',
+            url: `${externalURL}:1026/v1/queryContext`,
+            data: {
+              "entities": [
+                {
+                    "type": "Bus",
+                    "isPattern": "true",
+                    "id": ".*"
+                }
+            ],
+            "restriction": {
+                "scopes": [
+                    {
+                        "type": "FIWARE::Location",
+                        "value": {
+                            "circle": {
+                                "centerLatitude": "-34.7782030444606",
+                                "centerLongitude": "-56.137229843163",
+                                "radius": "10000"
+                            }
+                        }
+                    },
+                    {
+                      "type": "FIWARE::StringQuery",
+                      "value": "linea=='501'"
+                    }
+                ]
+            }
+          }
+        }).then(function (response) {
+          console.log(response.data.contextResponses);
+      }).catch(function (error) {
+            console.log(error);
+        });
+
+          
         let result = geoLib.distance({
             p1: {
                 lat: -34.7844931,
