@@ -4,6 +4,8 @@ const axios = require('../helpers/axios');
 const controllerCoordenadas = require('./coordenadas')
 const controllerOmnibus = require('./omnibus')
 
+let tiempo;
+
 const externalURL = process.env.API_URL
 const observerURL = process.env.SERVER_URL
 const serverURL = process.env.SERVER_URL
@@ -56,6 +58,9 @@ const actualizarInfoDeOmnibus = (idLinea, idOmnibus, nuevaUbicacion, tiempoDeAct
         const ultimaUbicacionRecibida = velocidadesPorLinea[idLinea][idOmnibus]["ultima_ubicacion"];
         const distanciaRecorridaDesdeUltimaActualizacion = geoLib.getDistance(ultimaUbicacionRecibida, nuevaUbicacion);
         const distanciaTotalRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"] + distanciaRecorridaDesdeUltimaActualizacion;
+        let asd = new Date().getTime();
+        console.log("el asd", asd)
+        console.log("el tiempo", velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"])
         const tiempoEnSegundosDesdeUltimaActualizacion = (new Date(tiempoDeActualizacion).getTime() - velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]) / 1000;
         const tiempoDeViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] + tiempoEnSegundosDesdeUltimaActualizacion;
 
@@ -92,6 +97,38 @@ module.exports = {
     actualizarInfoDeOmnibus: actualizarInfoDeOmnibus,
     calcularVelocidadPromedioDeOmnibus: calcularVelocidadPromedioDeOmnibus,
 
+    inicio: (req,res) => {
+        axios.inst({
+            method: 'post',
+            url: `${externalURL}:1026/v2/subscriptions`,
+            data: {
+                "subject": {
+                    "entities": [{
+                        "idPattern": ".*",
+                        "type": "Bus",
+                    }],
+
+                    "condition": {
+                        "attrs": [
+                            "location"
+                        ]
+                    }
+                },
+                "notification": {
+                    "http": {
+                        "url": observerURL+":3001/pruebaSus"
+                    },
+                    "attrs": [
+                        "location",
+                        "id",
+                        "linea"
+                    ]
+                }
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    },
     prueba: (req, res) => {
  /*       axios.inst.get(`${externalURL}:1026/v2/entities?type=Bus&limit=10`)
             .then(function (response) {
@@ -232,28 +269,39 @@ module.exports = {
     },
 
     pruebaSus: (req, res) => {
-        console.log(req.body.data[0].location);
-        //console.log(req.body.data.length);
-        /*   for (let i = 0; i < req.body.data.length; i++) {
-             let result = geoLib.distance({
-                 p1: {
-                     lat: -34.7782030444606,
-                     lon: -56.137229843163
-                 },
-                 p2: {
-                     lat: req.body.data[i].location.value.coordinates[1],
-                     lon: req.body.data[i].location.value.coordinates[0]
-                 }
-             });
-             console.log(result);
-             
-       }*/
-
+        axios.inst({
+            method: 'get',
+            url: `${externalURL}/api/simulador/tiempoactual`
+        }).then(function (response) {
+            tiempo = response.data.tiempoActual;
+            console.log(response.data);
+            console.log(req.body.data[0]);
+            let {id} = req.body.data[0];
+            let coordinates = {
+                longitude:req.body.data[0].location.value.coordinates[0],
+                latitude:req.body.data[0].location.value.coordinates[1]
+            }
+            
+            req.body.data[0].location.value;
+            let linea = req.body.data[0].linea.value;
+            console.log(id);
+            console.log(coordinates);
+            console.log(linea);
+            actualizarInfoDeOmnibus(linea,id,coordinates,tiempo)
+        }).catch(function (error) {
+            console.log(error);
+        });
         res.send("bien");
     },
 
     meta: (req, res) => {
-        axios.inst({
+        
+        console.log("la meta");
+       
+        let result = calcularVelocidadPromedioDeOmnibus(89,227)
+        console.log(result);
+       
+        /* axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v2/op/query`,
             data: {
@@ -272,7 +320,7 @@ module.exports = {
             console.log(response.data[0].linea);
         }).catch(function (error) {
             console.log(error);
-        });
-        res.send("puto")
+        });*/
+        res.send("result")
     }
 }

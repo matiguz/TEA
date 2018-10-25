@@ -16,4 +16,5 @@ module.exports = (router) => {
     router.route('/paradaAnterior/:id_linea/:ordinal_parada').get(lineasController.coordenadasParadaAnterior)
     router.route('/omnibus/:id_linea').get(omnibusController.omnibusParaLinea)
     router.route('/paraLineaEnRadio').post(omnibusController.omnibusParaLineaEnRadio)
+    router.route('/inicio').get(pruebaController.inicio)
 }
