@@ -13,6 +13,7 @@ module.exports = (router) => {
     router.route('/meta').get(pruebaController.meta)
     router.route('/nextBus/:id_linea/:id_parada').get(lineasController.calcularTeaProximoOmnibus)
     router.route('/lineas/:id_linea').get(lineasController.paradasParaLinea)
+    router.route('/paradaAnterior/:id_linea/:ordinal_parada').get(lineasController.coordenadasParadaAnterior)
     router.route('/omnibus/:id_linea').get(omnibusController.omnibusParaLinea)
     router.route('/paraLineaEnRadio').post(omnibusController.omnibusParaLineaEnRadio)
 }
