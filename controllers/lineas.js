@@ -21,7 +21,7 @@ const getParadasParaLinea = (linea) => {
 module.exports = {
     paradasParaLinea: (req, res) => {
         const linea = req.params.id_linea;
-        
+
         getParadasParaLinea(linea)
         .then((paradas) => {
             res.send(paradas);
@@ -40,15 +40,19 @@ module.exports = {
             "coordinates": [-56.19539, -34.90608]
         }
         
-        // 
-
-        const data = {
-            "linea": linea,
-            "parada": parada,
-            "location": location,
-            "tea": teaEnSegundos
-        }
-
-        res.send(data);
+        getParadasParaLinea(linea)
+        .then((paradas) => {
+            const data = {
+                "linea": linea,
+                "parada": parada,
+                "location": location,
+                "tea": teaEnSegundos
+            }
+    
+            res.send(data);
+        })
+        .catch((error) => {
+            res.send({error: "No se pudo obtener el tea"});
+        });
     }
 }

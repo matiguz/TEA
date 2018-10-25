@@ -1,5 +1,5 @@
-const pruebaController = require('../controllers/prueba')
-const lineasController = require('../controllers/lineas')
+const pruebaController = require('../controllers/prueba');
+const lineasController = require('../controllers/lineas');
 
 module.exports = (router) => {
 
