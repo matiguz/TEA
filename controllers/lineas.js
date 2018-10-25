@@ -31,6 +31,10 @@ module.exports = {
         });
     },
 
+    coordenadasParadaAnterior: (req, res) => {
+        
+    },
+
     calcularTeaProximoOmnibus: (req, res) => {
         const linea = req.params.id_linea;
         const parada = req.params.id_parada;

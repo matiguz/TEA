@@ -1,8 +1,12 @@
 let geoLib = require('geolib');
 const axios = require('../helpers/axios');
 
+const controllerCoordenadas = require('./coordenadas')
+const controllerOmnibus = require('./omnibus')
+
 const externalURL = process.env.API_URL
 const observerURL = process.env.SERVER_URL
+const serverURL = process.env.SERVER_URL
 const tiempoMinimoDeViajeParaConsiderarDatosReales = parseFloat(process.env.TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES)
 const velocidadEnMetrosPorSegundoPromedioDefecto = parseFloat(process.env.VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO)
 
@@ -89,7 +93,7 @@ module.exports = {
     calcularVelocidadPromedioDeOmnibus: calcularVelocidadPromedioDeOmnibus,
 
     prueba: (req, res) => {
-        axios.inst.get(`${externalURL}:1026/v2/entities?type=Bus&limit=10&linea=522`)
+ /*       axios.inst.get(`${externalURL}:1026/v2/entities?type=Bus&limit=10`)
             .then(function (response) {
                 console.log(response.data.length);
             })
@@ -105,17 +109,23 @@ module.exports = {
                 console.log(error);
             });
 
-        axios.inst({
+            axios.inst.get(`${serverURL}/omnibus/522`)
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+*/
+         /*axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v2/subscriptions`,
             data: {
                 "subject": {
                     "entities": [{
-                        "idPattern": ".*",
+                        "id": "20",
                         "type": "Bus",
-                        "attrs": [{
-                            "linea": "7516"
-                        }]
                     }],
 
                     "condition": {
@@ -126,7 +136,7 @@ module.exports = {
                 },
                 "notification": {
                     "http": {
-                        "url": observerURL
+                        "url": observerURL+"/pruebaSus"
                     },
                     "attrs": [
                         "location",
@@ -137,11 +147,11 @@ module.exports = {
             }
         }).catch(function (error) {
             console.log(error);
-        });
-
-        /*  axios.inst({
+        });*/
+        
+          /*axios.inst({
             method: 'delete',
-            url: '${url}:1026/v2/subscriptions/5bcfa3b304a44ed51c2bf75e'
+            url: `${externalURL}:1026/v2/subscriptions/5bd0b719a0a51b54fa37de74`
           });*/
 
          const p1 = {
@@ -161,6 +171,22 @@ module.exports = {
 
     pruebaSus: (req, res) => {
         console.log(req.body.data[0].location.value);
+        //console.log(req.body.data.length);
+        for (let i = 0; i < req.body.data.length; i++) {
+          let result = geoLib.distance({
+              p1: {
+                  lat: -34.7782030444606,
+                  lon: -56.137229843163
+              },
+              p2: {
+                  lat: req.body.data[i].location.value.coordinates[1],
+                  lon: req.body.data[i].location.value.coordinates[0]
+              }
+          });
+          console.log(result);
+          
+        }
+        
         res.send("bien");
     },
 
