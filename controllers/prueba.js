@@ -55,10 +55,6 @@ const actualizarInfoDeOmnibus = (idLinea, idOmnibus, nuevaUbicacion, tiempoDeAct
             "tiempo_ultima_actualizacion": tiempoDeActualizacion
         }
     } else {
-        let a = new Date(tiempoDeActualizacion).getTime();
-        let b = new Date(velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]).getTime();
-
-
         const ultimaUbicacionRecibida = velocidadesPorLinea[idLinea][idOmnibus]["ultima_ubicacion"];
         const distanciaRecorridaDesdeUltimaActualizacion = geoLib.getDistance(ultimaUbicacionRecibida, nuevaUbicacion);
         const distanciaTotalRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"] + distanciaRecorridaDesdeUltimaActualizacion;
@@ -127,6 +123,8 @@ module.exports = {
                     ]
                 }
             }
+        }).then((result) => {
+            console.log("Se comenzó a escuchar la suscripcion")
         }).catch(function (error) {
             console.log(error);
         });
@@ -271,7 +269,6 @@ module.exports = {
     },
 
     pruebaSus: (req, res) => {
-
             let {id} = req.body.data[0];
             let coordinates = {
                 longitude:req.body.data[0].location.value.coordinates[0],
@@ -279,7 +276,11 @@ module.exports = {
             }
             let linea = req.body.data[0].linea.value;
             let tiempo = new Date(req.body.data[0].timestamp.value);
+            if (linea =="217"){
+                let result = calcularVelocidadPromedioDeOmnibus(217,68)
+                console.log(result);
 
+            }
             actualizarInfoDeOmnibus(linea,id,coordinates,tiempo)
             res.send("bien");
     },
