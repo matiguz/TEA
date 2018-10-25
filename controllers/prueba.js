@@ -55,13 +55,14 @@ const actualizarInfoDeOmnibus = (idLinea, idOmnibus, nuevaUbicacion, tiempoDeAct
             "tiempo_ultima_actualizacion": tiempoDeActualizacion
         }
     } else {
+        let a = new Date(tiempoDeActualizacion).getTime();
+        let b = new Date(velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]).getTime();
+
+
         const ultimaUbicacionRecibida = velocidadesPorLinea[idLinea][idOmnibus]["ultima_ubicacion"];
         const distanciaRecorridaDesdeUltimaActualizacion = geoLib.getDistance(ultimaUbicacionRecibida, nuevaUbicacion);
         const distanciaTotalRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"] + distanciaRecorridaDesdeUltimaActualizacion;
-        let asd = new Date().getTime();
-        console.log("el asd", asd)
-        console.log("el tiempo", velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"])
-        const tiempoEnSegundosDesdeUltimaActualizacion = (new Date(tiempoDeActualizacion).getTime() - velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]) / 1000;
+        const tiempoEnSegundosDesdeUltimaActualizacion = (new Date(tiempoDeActualizacion).getTime() - new Date(velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]).getTime()) / 1000;
         const tiempoDeViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] + tiempoEnSegundosDesdeUltimaActualizacion;
 
         velocidadesPorLinea[idLinea][idOmnibus] = {
@@ -116,12 +117,13 @@ module.exports = {
                 },
                 "notification": {
                     "http": {
-                        "url": observerURL+":3001/pruebaSus"
+                        "url": observerURL+"/pruebaSus"
                     },
                     "attrs": [
                         "location",
                         "id",
-                        "linea"
+                        "linea",
+                        "timestamp",
                     ]
                 }
             }
@@ -236,7 +238,7 @@ module.exports = {
               });
       */
 
-        axios.inst({
+        /*axios.inst({
             method: 'post',
             url: `${serverURL}:3001/paraLineaEnRadio`,
             data: {
@@ -264,41 +266,29 @@ module.exports = {
         }
         
         let result = geoLib.getDistance(p1, p2);
-
-        res.send(result);
+*/
+        res.send("todo legal");
     },
 
     pruebaSus: (req, res) => {
-        axios.inst({
-            method: 'get',
-            url: `${externalURL}/api/simulador/tiempoactual`
-        }).then(function (response) {
-            tiempo = response.data.tiempoActual;
-            console.log(response.data);
-            console.log(req.body.data[0]);
+
             let {id} = req.body.data[0];
             let coordinates = {
                 longitude:req.body.data[0].location.value.coordinates[0],
                 latitude:req.body.data[0].location.value.coordinates[1]
             }
-            
-            req.body.data[0].location.value;
             let linea = req.body.data[0].linea.value;
-            console.log(id);
-            console.log(coordinates);
-            console.log(linea);
+            let tiempo = new Date(req.body.data[0].timestamp.value);
+
             actualizarInfoDeOmnibus(linea,id,coordinates,tiempo)
-        }).catch(function (error) {
-            console.log(error);
-        });
-        res.send("bien");
+            res.send("bien");
     },
 
     meta: (req, res) => {
         
         console.log("la meta");
        
-        let result = calcularVelocidadPromedioDeOmnibus(89,227)
+        let result = calcularVelocidadPromedioDeOmnibus(217,34)
         console.log(result);
        
         /* axios.inst({
