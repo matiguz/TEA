@@ -117,14 +117,14 @@ module.exports = {
                 console.log(error);
             });
 
-*/
-         /*axios.inst({
+*//*
+         axios.inst({
             method: 'post',
             url: `${externalURL}:1026/v2/subscriptions`,
             data: {
                 "subject": {
                     "entities": [{
-                        "id": "20",
+                        "id": "961",
                         "type": "Bus",
                     }],
 
@@ -136,7 +136,7 @@ module.exports = {
                 },
                 "notification": {
                     "http": {
-                        "url": observerURL+"/pruebaSus"
+                        "url": observerURL+":3001/pruebaSus"
                     },
                     "attrs": [
                         "location",
@@ -147,46 +147,108 @@ module.exports = {
             }
         }).catch(function (error) {
             console.log(error);
-        });*/
+        });
         
-          /*axios.inst({
+          *//*axios.inst({
             method: 'delete',
-            url: `${externalURL}:1026/v2/subscriptions/5bd0b719a0a51b54fa37de74`
-          });*/
+            url: `${externalURL}:1026/v2/subscriptions/5bd1066b96d14c53d458aa71`
+        });*/
 
-         const p1 = {
+        /*let a = controllerCoordenadas.puntoMedio({lat: -34.7844931,lon: -56.2239004},{lat: -34.799506,lon: -56.228390})
+        console.log(a);
+*/
+        /*        controllerOmnibus.omnibusParaLineaEnRadio({lat:-34.7782030444606,lon:-56.137229843163},30000,522).then((response)=>{
+                    console.log(response);
+                  }
+                );
+      /*
+                axios.inst({
+                  method: 'post',
+                  url: `${externalURL}:1026/v1/queryContext`,
+                  data: {
+                    "entities": [
+                      {
+                          "type": "Bus",
+                          "isPattern": "true",
+                          "id": ".*"
+                      }
+                  ],
+                  "restriction": {
+                      "scopes": [
+                          {
+                              "type": "FIWARE::Location",
+                              "value": {
+                                  "circle": {
+                                      "centerLatitude": "-34.7782030444606",
+                                      "centerLongitude": "-56.137229843163",
+                                      "radius": "10000"
+                                  }
+                              }
+                          },
+                          {
+                            "type": "FIWARE::StringQuery",
+                            "value": "linea=='501'"
+                          }
+                      ]
+                  }
+                }
+              }).then(function (response) {
+                console.log(response.data.contextResponses);
+            }).catch(function (error) {
+                  console.log(error);
+              });
+      */
+
+        axios.inst({
+            method: 'post',
+            url: `${serverURL}:3001/paraLineaEnRadio`,
+            data: {
+                "linea": "522",
+                "radio": "2000",
+                "centro":{
+                    "lat":"-34.7887465410069",
+                    "lon":"-56.1362089184452"
+                }
+            }
+        }).then(function (response) {
+            console.log(response.data);
+        }).catch(function (error) {
+            console.log(error);
+        });
+
+        const p1 = {
             latitude: -34.7844931,
             longitude: -56.2239004
-        }
+        };
 
         const p2 = {
             latitude: -34.799506,
             longitude: -56.228390
         }
-
+        
         let result = geoLib.getDistance(p1, p2);
 
         res.send(result);
     },
 
     pruebaSus: (req, res) => {
-        console.log(req.body.data[0].location.value);
+        console.log(req.body.data[0].location);
         //console.log(req.body.data.length);
-        for (let i = 0; i < req.body.data.length; i++) {
-          let result = geoLib.distance({
-              p1: {
-                  lat: -34.7782030444606,
-                  lon: -56.137229843163
-              },
-              p2: {
-                  lat: req.body.data[i].location.value.coordinates[1],
-                  lon: req.body.data[i].location.value.coordinates[0]
-              }
-          });
-          console.log(result);
-          
-        }
-        
+        /*   for (let i = 0; i < req.body.data.length; i++) {
+             let result = geoLib.distance({
+                 p1: {
+                     lat: -34.7782030444606,
+                     lon: -56.137229843163
+                 },
+                 p2: {
+                     lat: req.body.data[i].location.value.coordinates[1],
+                     lon: req.body.data[i].location.value.coordinates[0]
+                 }
+             });
+             console.log(result);
+             
+       }*/
+
         res.send("bien");
     },
 
