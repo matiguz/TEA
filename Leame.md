@@ -2,7 +2,7 @@
 
 ## Indice
 * [Introduccion](#introduccion)
-* [Prerequisitos](#prerequisitos)
+* [Prerrequisitos de instalacion](#prerrequisitos)
 * [Instalacion](#instalacion)
 * [Servidor de aplicacion](#servidor-aplicacion)
 * [Algoritmo](#algoritmo)
@@ -14,7 +14,7 @@
 
 En el presente documento, se detalla la informacion para realizar le instalacion y ejecucion del programa. tambien se realiza la descripción detallada de todos los componentes de nuestro algoritmo, así mismo, añadiendo también la justificación de cada decisión realizando el análisis correspondiente.
 
-## Prerequisitos
+## Prerrequisitos de instalacion
 
 * [node](https://nodejs.org/) & [npm](https://www.npmjs.com/#getting-started)
 
