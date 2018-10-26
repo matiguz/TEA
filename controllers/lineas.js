@@ -278,7 +278,8 @@ module.exports = {
 
             res.send(data);
         } catch (error) {
-            console.log("Error: ", error)
+            console.log("Error: ", error);
+            res.send({ error: "No se encontró omnibus en camino para la linea dada" });
         }
     }
     
