@@ -2,11 +2,11 @@
 
 ## Indice
 * [Introduccion](#introduccion)
-* [Prerrequisitos de instalacion](#prerrequisitos)
-* [Instalacion](#instalacion)
+* [Prerrequisitos de instalación](#prerrequisitos)
+* [Instalación](#instalacion)
 * [Servidor de aplicacion](#servidor-aplicacion)
 * [Algoritmo](#algoritmo)
-* [Decision de diseño](#decision-de-diseño)
+* [Decisión de diseño](#decision-de-diseño)
 
 
 
@@ -14,11 +14,11 @@
 
 En el presente documento, se detalla la informacion para realizar le instalacion y ejecucion del programa. tambien se realiza la descripción detallada de todos los componentes de nuestro algoritmo, así mismo, añadiendo también la justificación de cada decisión realizando el análisis correspondiente.
 
-## Prerrequisitos de instalacion
+## Prerrequisitos de instalación
 
 * [node](https://nodejs.org/) & [npm](https://www.npmjs.com/#getting-started)
 
-## Instalacion
+## Instalación
 
 ```
 $> git clone https://github.com/matiguz/TEA.git
@@ -38,11 +38,11 @@ Primero lo que realiza nuestra solución, es detectar el omnibus mas cercano a l
 
 Una vez detectado el ómnibus de la línea deseada mas proximo a llegar a la parada, se tiene guardado el cálculo de la velocidad media y el trayecto realizado hasta el momento (tomamos el valor de la velocidad media calculada en tiempo real, cuando un ómnibus inició su recorrido después de 10 minutos, antes de ese tiempo se toma una velocidad media por default de 15 km/h, que es un promedio calculado con toda la información de los ómnibus de viajes anteriores), con este valor lo que hacemos es realizar un cálculo de tiempo teniendo en cuenta la suma de las distancias entre cada ordinal que hay entre el ómnibus y la parada de destino para que sea más preciso el cálculo. Se recomienda utilizar la API en un pull, para actualizar cada vez con más precisión a medida que el ómnibus avanza.
 
-## Decision de diseño
+## Decisión de diseño
 
 Se tomó esta decisión ya que analizamos muchas posibilidades y realizamos distintos algoritmos donde fuimos probando los datos del simulador pero también tomamos en cuenta la aplicación de la solución en un escenario real.
 Otro algoritmo que estudiamos y analizamos, pero lo descartamos, fue realizar el mismo algoritmo propuesto pero acoplado con un cálculo proveniente de una API proporcionada por Google, la cual te aporta la información de que tan congestionado está un tramo determinado de una calle que uno desee.
-Para este tipo de algoritmos en tiempo real, el tiempo de cálculo tiene que ser minimo ya que el omnibus solamente en un segundo puede moverse bastantes metros y eso ya distorciona el algoritmo. En el uso de APIs externas estamos expuesto a problemas de perfomance y acoplamiento a otras soluciones pueden tener inconvenientes de servicio.
+Para este tipo de algoritmos en tiempo real, el tiempo de cálculo tiene que ser minimo, ya que el omnibus solamente en un segundo puede moverse bastantes metros y eso ya distorciona el algoritmo. En el uso de APIs externas estamos expuestos a problemas de perfomance y acoplamiento a otras soluciones que pueden tener inconvenientes de servicio.
 Realizamos esta API REST pensando en que sea consumida por una aplicacion que se vaya actualizando el tiempo de espera cada vez que se vaya moviendo el omnibus, entonces vamos obteniendo en cada pequeño tramo la velocidad media, por lo que ya tenemos todos los datos necesarios para generar una muy buena estimacion sin necesidad de una API de terceros.
 
 
