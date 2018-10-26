@@ -3,7 +3,8 @@
 ## Indice
 * [Introduccion](#introduccion)
 * [Prerrequisitos de instalación](#prerrequisitos)
-* [Instalación](#instalacion)
+* [Instalación](#instalación)
+* [Configuración](#configuración)
 * [Servidor de aplicacion](#servidor-aplicacion)
 * [Algoritmo](#algoritmo)
 * [Decisión de diseño](#decision-de-diseño)
@@ -25,6 +26,16 @@ $> git clone https://github.com/matiguz/TEA.git
 $> cd TEA
 $> npm install
 ```
+
+## Configuración
+
+Editar el archivo .env de la raiz del proyecto con los siguientes datos.
+
+ORION_URL Hace referencia a la URL del servidor ORION incluido el PUERTO
+API_URL= Hace referencia a la URL de la API
+SERVER_URL= Hace referencia a la URL del servidor incluido el puerto
+TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES= Tiempo mínimo de viajes para considerar datos.
+VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO= Velocidad promedio en metros por segundo.
 
 ## Servidor de aplicacion
 
