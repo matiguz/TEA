@@ -1,9 +1,11 @@
 const axios = require('../helpers/axios');
+const geoLib = require('geolib');
 const _ = require('lodash');
 
 const coordenadas = require('./coordenadas')
 
-const externalURL = process.env.API_URL
+const orionURL = process.env.ORION_URL
+const apiURL = process.env.API_URL
 
 const tiempoMinimoDeViajeParaConsiderarDatosReales = parseFloat(process.env.TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES)
 const velocidadEnMetrosPorSegundoPromedioDefecto = parseFloat(process.env.VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO)
@@ -72,7 +74,7 @@ const calcularVelocidadPromedioDeOmnibus = (idLinea, idOmnibus) => {
 }
 
 const getParadasParaLinea = (linea) => {
-    return axios.inst.get(`${externalURL}/api/trayectosporlinea`)
+    return axios.inst.get(`${apiURL}/api/trayectosporlinea`)
         .then((response) => {
             const trayectos = response.data.trayectos;
             const paradas = _.filter(trayectos, (parada) => {
@@ -118,7 +120,7 @@ const obtenerSiguienteParadaDadaLineaYOrdinalDeParada = async (linea, ordinal) =
 const buscarOmnibusDadaLineaUbicacionYRadio = async (linea, ubicacion, radio) => {
     return axios.inst({
         method: 'post',
-        url: `${externalURL}:1026/v1/queryContext`,
+        url: `${orionURL}/v1/queryContext`,
         data: {
             "entities": [{
                 "type": "Bus",
@@ -178,7 +180,6 @@ const obtenerTeaParaLineaYParada = async (linea, parada) => {
 
     while (!ominbusFueEncontrado) {
         let paradaActual = await obtenerInformacionDeParada(idParada, linea);
-
         if (idParada === parada) {
             location["coordinates"] = [paradaActual.lat, paradaActual.long]
         }
@@ -225,7 +226,7 @@ const obtenerTeaParaLineaYParada = async (linea, parada) => {
 }
 
 const obtenerInformacionDeParada = async (codigoParada, linea) => {
-    return axios.inst.get(`${externalURL}/api/trayectosporlinea`)
+    return axios.inst.get(`${apiURL}/api/trayectosporlinea`)
         .then((response) => {
             const trayectos = response.data.trayectos;
 

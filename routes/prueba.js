@@ -6,10 +6,10 @@ module.exports = (router) => {
 
     router.route('/nextBus/:id_linea/:id_parada').get(lineasController.calcularTeaProximoOmnibus)
     router.route('/pruebaSus').post(lineasController.nuevosDatosDeOmnibusRecibidos)
-
     // Se necesitan estos endpoints?
     router.route('/lineas/:id_linea').get(lineasController.paradasParaLinea)
     router.route('/omnibus/:id_linea').get(omnibusController.omnibusParaLinea)
     router.route('/paraLineaEnRadio').post(omnibusController.omnibusParaLineaEnRadio)
-    router.route('/inicio').get(pruebaController.inicio)
+    router.route('/iniciarCaputraDatos').get(pruebaController.inicio)
+    router.route('/finCapturaDatos/:id_subscripcion').get(pruebaController.fin)
 }

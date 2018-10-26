@@ -1,10 +1,10 @@
 const axios = require('../helpers/axios');
 const _ = require('lodash');
 
-const externalURL = process.env.API_URL
+const orionURL = process.env.ORION_URL
 
 const getOmnibusParaLinea = (linea) => {
-    return axios.inst.get(`${externalURL}:1026/v2/entities?q=linea==%27${linea}%27`)
+    return axios.inst.get(`${orionURL}/v2/entities?q=linea==%27${linea}%27`)
     .then((response) => {
         return response.data;
     })
@@ -34,7 +34,7 @@ module.exports = {
         
         axios.inst({
             method: 'post',
-            url: `${externalURL}:1026/v1/queryContext`,
+            url: `${orionURL}/v1/queryContext`,
             data: {
               "entities": [
                 {

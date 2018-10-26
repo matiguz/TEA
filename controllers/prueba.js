@@ -1,10 +1,9 @@
-let geoLib = require('geolib');
 const axios = require('../helpers/axios');
 
-const externalURL = process.env.API_URL
+const orionURL = process.env.API_URL
 const observerURL = process.env.SERVER_URL
 
-if (!externalURL) {
+if (!orionURL) {
     console.log("Please create an .env file in the root folder of the project and set a API_URL var");
     process.exit();
 }
@@ -19,7 +18,7 @@ module.exports = {
     inicio: (req,res) => {
         axios.inst({
             method: 'post',
-            url: `${externalURL}:1026/v2/subscriptions`,
+            url: `${orionURL}/v2/subscriptions`,
             data: {
                 "subject": {
                     "entities": [{
@@ -46,10 +45,19 @@ module.exports = {
                 }
             }
         }).then((result) => {
-            console.log("Se comenzó a escuchar la suscripcion")
+            console.log("Se comenzó a escuchar la suscripcion");
+            res.send("Subscripcion registrada con éxito.")
         }).catch(function (error) {
             console.log(error);
         });
     },
-
+    fin: (req,res) => {
+        const id_subscripcion = req.params.id_subscripcion;
+        axios.inst({
+            method: 'delete',
+            url: `${orionURL}/v2/subscriptions/${id_subscripcion}`,
+        }).then ((result) => {
+            res.send("Subscripcion eliminada con éxito.")
+        });
+    }
 }
