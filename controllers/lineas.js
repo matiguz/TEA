@@ -179,12 +179,20 @@ const obtenerTeaParaLineaYParada = async (linea, parada) => {
     while (!ominbusFueEncontrado) {
         let paradaActual = await obtenerInformacionDeParada(idParada, linea);
 
+        if (!paradaActual) {
+            return { error: "Parada inexistente para la linea dada" };
+        }
+
         if (idParada === parada) {
             location["coordinates"] = [paradaActual.lat, paradaActual.long]
         }
 
         let ordinalParadaActual = paradaActual.ordinal;
         let siguienteParada = await obtenerSiguienteParadaDadaLineaYOrdinalDeParada(linea, ordinalParadaActual);
+
+        if (!siguienteParada) {
+            return { error: "No se encontró omnibus en camino para la linea dada" };
+        }
 
         let coordenadasParadaActual = {
             "lat": paradaActual.lat,
@@ -200,6 +208,10 @@ const obtenerTeaParaLineaYParada = async (linea, parada) => {
         let radio = coordenadas.distancia(coordenadasSiguienteParada, coordenadasParadaActual) / 2;
 
         const data = await buscarOmnibusDadaLineaUbicacionYRadio(linea, centro, radio);
+
+        if (!data) {
+            return { error: "No se encontró omnibus en camino para la linea dada" };
+        }
 
         const distancia = data["distancia"];
 
