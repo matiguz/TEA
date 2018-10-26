@@ -41,6 +41,10 @@ VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO= Velocidad promedio en metr
 
 Para inicializar el servidor de desarrollo abrir la terminal en la carpeta `TEA`  y ejecutar `npm start`. El servidor está disponible en `http://localhost:3001`.
 
+Una vez inicializado el servidor ir a `http://localhost:3001/iniciarCaputraDatos` para comenzar a escuchar los datos del servidor Orion.
+
+Para utilizar el endpoint que que calcula el TEA ir a `http://localhost:3001/nextBus/id_linea/id_parada` siendo id_linea el identificador de la línea y siendo id parada el código de la parada.
+
 ## Algoritmo
 
 La solución creada por nuestro grupo se basa en el cálculo matemático en tiempo real de la velocidad media en tramos pequeños, para luego estimar el tiempo de llegada a la parada del usuario, también tomando en cuenta el tiempo en que tomó el ómnibus en llegar a cada punto geográfico con respecto al punto de partida.
