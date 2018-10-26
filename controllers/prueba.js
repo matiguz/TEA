@@ -37,62 +37,11 @@ console.log(`SERVER URL: ${observerURL}`);
 console.log(`TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES: ${tiempoMinimoDeViajeParaConsiderarDatosReales}`);
 console.log(`VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO: ${velocidadEnMetrosPorSegundoPromedioDefecto}`);
 
-const velocidadesPorLinea = {}
-
-const actualizarInfoDeOmnibus = (idLinea, idOmnibus, nuevaUbicacion, tiempoDeActualizacion) => {
-    if (!velocidadesPorLinea[idLinea]) {
-        velocidadesPorLinea[idLinea] = {}
-    }
-
-    if (!velocidadesPorLinea[idLinea][idOmnibus]) {
-        const distanciaRecorrida = 0;
-        const tiempo = 0
-
-        velocidadesPorLinea[idLinea][idOmnibus] = {
-            "ultima_ubicacion": nuevaUbicacion,
-            "distancia_recorrida_metros": 0,
-            "tiempo_parcial_viaje_segundos": 0,
-            "tiempo_ultima_actualizacion": tiempoDeActualizacion
-        }
-    } else {
-        const ultimaUbicacionRecibida = velocidadesPorLinea[idLinea][idOmnibus]["ultima_ubicacion"];
-        const distanciaRecorridaDesdeUltimaActualizacion = geoLib.getDistance(ultimaUbicacionRecibida, nuevaUbicacion);
-        const distanciaTotalRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"] + distanciaRecorridaDesdeUltimaActualizacion;
-        const tiempoEnSegundosDesdeUltimaActualizacion = (new Date(tiempoDeActualizacion).getTime() - new Date(velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]).getTime()) / 1000;
-        const tiempoDeViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] + tiempoEnSegundosDesdeUltimaActualizacion;
-
-        velocidadesPorLinea[idLinea][idOmnibus] = {
-            "ultima_ubicacion": nuevaUbicacion,
-            "distancia_recorrida_metros": distanciaTotalRecorridaEnMetros,
-            "tiempo_parcial_viaje_segundos": tiempoDeViaje,
-            "tiempo_ultima_actualizacion": tiempoDeActualizacion
-        }
-    }
-}
-
-const calcularVelocidadPromedioDeOmnibus = (idLinea, idOmnibus) => {
-    var velocidad = velocidadEnMetrosPorSegundoPromedioDefecto;
-
-    const datosInsuficientesParaCalcularVelocidad = (!velocidadesPorLinea[idLinea] || !velocidadesPorLinea[idLinea][idOmnibus] || velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] < tiempoMinimoDeViajeParaConsiderarDatosReales);
-
-    if (!datosInsuficientesParaCalcularVelocidad) {
-        const tiempoParcialViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"];
-        const distanciaRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"];
-
-        velocidad = distanciaRecorridaEnMetros / tiempoParcialViaje;
-    }
-
-    return Number((velocidad).toFixed(2));
-}
-
 module.exports = {
 
     /***
      ***PRUEBA
      ***/
-
-    actualizarInfoDeOmnibus: actualizarInfoDeOmnibus,
-    calcularVelocidadPromedioDeOmnibus: calcularVelocidadPromedioDeOmnibus,
 
     inicio: (req,res) => {
         axios.inst({
@@ -268,22 +217,22 @@ module.exports = {
         res.send("todo legal");
     },
 
-    pruebaSus: (req, res) => {
-            let {id} = req.body.data[0];
-            let coordinates = {
-                longitude:req.body.data[0].location.value.coordinates[0],
-                latitude:req.body.data[0].location.value.coordinates[1]
-            }
-            let linea = req.body.data[0].linea.value;
-            let tiempo = new Date(req.body.data[0].timestamp.value);
-            if (linea =="217"){
-                let result = calcularVelocidadPromedioDeOmnibus(217,68)
-                console.log(result);
+    // pruebaSus: (req, res) => {
+    //         let {id} = req.body.data[0];
+    //         let coordinates = {
+    //             longitude:req.body.data[0].location.value.coordinates[0],
+    //             latitude:req.body.data[0].location.value.coordinates[1]
+    //         }
+    //         let linea = req.body.data[0].linea.value;
+    //         let tiempo = new Date(req.body.data[0].timestamp.value);
+    //         if (linea =="217"){
+    //             let result = calcularVelocidadPromedioDeOmnibus(217,68)
+    //             console.log(result);
 
-            }
-            actualizarInfoDeOmnibus(linea,id,coordinates,tiempo)
-            res.send("bien");
-    },
+    //         }
+    //         actualizarInfoDeOmnibus(linea,id,coordinates,tiempo)
+    //         res.send("bien");
+    // },
 
     meta: (req, res) => {
         

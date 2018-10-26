@@ -7,7 +7,71 @@ const prueba = require('./prueba')
 const externalURL = process.env.API_URL
 const serverURL = process.env.SERVER_URL
 
-const distanciaParcial = {};
+const tiempoMinimoDeViajeParaConsiderarDatosReales = parseFloat(process.env.TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES)
+const velocidadEnMetrosPorSegundoPromedioDefecto = parseFloat(process.env.VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO)
+
+const velocidadesPorLinea = {}
+
+const nuevosDatosDeOmnibusRecibidos = (req, res) => {
+    let {id} = req.body.data[0];
+
+    let coordinates = {
+        longitude: req.body.data[0].location.value.coordinates[0],
+        latitude: req.body.data[0].location.value.coordinates[1]
+    }
+
+    let linea = req.body.data[0].linea.value;
+    let tiempo = new Date(req.body.data[0].timestamp.value);
+
+    actualizarInfoDeOmnibus(linea, id, coordinates, tiempo);
+    res.send({success: true});
+}
+
+const actualizarInfoDeOmnibus = (idLinea, idOmnibus, nuevaUbicacion, tiempoDeActualizacion) => {
+    if (!velocidadesPorLinea[idLinea]) {
+        velocidadesPorLinea[idLinea] = {}
+    }
+
+    if (!velocidadesPorLinea[idLinea][idOmnibus]) {
+        const distanciaRecorrida = 0;
+        const tiempo = 0
+
+        velocidadesPorLinea[idLinea][idOmnibus] = {
+            "ultima_ubicacion": nuevaUbicacion,
+            "distancia_recorrida_metros": 0,
+            "tiempo_parcial_viaje_segundos": 0,
+            "tiempo_ultima_actualizacion": tiempoDeActualizacion
+        }
+    } else {
+        const ultimaUbicacionRecibida = velocidadesPorLinea[idLinea][idOmnibus]["ultima_ubicacion"];
+        const distanciaRecorridaDesdeUltimaActualizacion = geoLib.getDistance(ultimaUbicacionRecibida, nuevaUbicacion);
+        const distanciaTotalRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"] + distanciaRecorridaDesdeUltimaActualizacion;
+        const tiempoEnSegundosDesdeUltimaActualizacion = (new Date(tiempoDeActualizacion).getTime() - new Date(velocidadesPorLinea[idLinea][idOmnibus]["tiempo_ultima_actualizacion"]).getTime()) / 1000;
+        const tiempoDeViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] + tiempoEnSegundosDesdeUltimaActualizacion;
+
+        velocidadesPorLinea[idLinea][idOmnibus] = {
+            "ultima_ubicacion": nuevaUbicacion,
+            "distancia_recorrida_metros": distanciaTotalRecorridaEnMetros,
+            "tiempo_parcial_viaje_segundos": tiempoDeViaje,
+            "tiempo_ultima_actualizacion": tiempoDeActualizacion
+        }
+    }
+}
+
+const calcularVelocidadPromedioDeOmnibus = (idLinea, idOmnibus) => {
+    var velocidad = velocidadEnMetrosPorSegundoPromedioDefecto;
+
+    const datosInsuficientesParaCalcularVelocidad = (!velocidadesPorLinea[idLinea] || !velocidadesPorLinea[idLinea][idOmnibus] || velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"] < tiempoMinimoDeViajeParaConsiderarDatosReales);
+
+    if (!datosInsuficientesParaCalcularVelocidad) {
+        const tiempoParcialViaje = velocidadesPorLinea[idLinea][idOmnibus]["tiempo_parcial_viaje_segundos"];
+        const distanciaRecorridaEnMetros = velocidadesPorLinea[idLinea][idOmnibus]["distancia_recorrida_metros"];
+
+        velocidad = distanciaRecorridaEnMetros / tiempoParcialViaje;
+    }
+
+    return Number((velocidad).toFixed(2));
+}
 
 const getParadasParaLinea = (linea) => {
     return axios.inst.get(`${externalURL}/api/trayectosporlinea`)
@@ -24,109 +88,154 @@ const getParadasParaLinea = (linea) => {
         });
 }
 
-const pruebaRecursiva = (linea,parada) => {
-    return new Promise((resP,rejP) => {
-        try {
-            getOrdinalParada(parada,linea)
-        .then((paradaAnterior) => {
-            let ord = paradaAnterior[0].ordinal;
-            axios.inst.get(`${serverURL}/paradaAnterior/${linea}/${ord}`)
-                .then(function (response) {
-                    let coordenadaParadaAnterior = response.data;
-                    let coordenadaParadaActual = { "lat": paradaAnterior[0].lat, "lon": paradaAnterior[0].long };
-                    let centro = coordenadas.puntoMedio(coordenadaParadaActual, coordenadaParadaAnterior)
-                    let radio = coordenadas.distancia(coordenadaParadaActual, coordenadaParadaAnterior) / 2;
+const obtenerSiguienteParadaDadaLineaYOrdinalDeParada = async (linea, ordinal) => {
+    return getParadasParaLinea(linea)
+        .then((paradas) => {
+            let paradaAnterior;
 
-                    axios.inst({
-                        method: 'post',
-                        url: `${externalURL}:1026/v1/queryContext`,
-                        data: {
-                            "entities": [
-                                {
-                                    "type": "Bus",
-                                    "isPattern": "true",
-                                    "id": ".*"
-                                }
-                            ],
-                            "restriction": {
-                                "scopes": [
-                                    {
-                                        "type": "FIWARE::Location",
-                                        "value": {
-                                            "circle": {
-                                                "centerLatitude": `${centro.latitude}`,
-                                                "centerLongitude": `${centro.longitude}`,
-                                                "radius": `${radio*1.5}`
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "FIWARE::StringQuery",
-                                        "value": `linea=='${linea}'`
-                                    }
-                                ]
-                            }
-                        }
-                    }).then(function (response) {
-                        if (!response.data.errorCode) {
-                            console.log("Bueno que encontre bondiiii")
-                            let omnibus = response.data.contextResponses;
-                            for (let i = 0; i < omnibus.length; i++) {
-                                console.log(omnibus[i].contextElement.attributes[2].value.coordinates);
-                                //  coordenadas.distancia()
-                            }
-                            console.log(distanciaParcial['dist'])
-                            //FALTA SUMAR LA ULTIMA DISTANCIA
+            if (ordinal > 1 && ordinal < paradas.length + 1) {
+                paradaAnterior = paradas[ordinal - 2];
+            } else {
+                paradaAnterior = {
+                    codigoParada: '',
+                    linea: '',
+                    ordinal: '',
+                    calle: '',
+                    esquina: '',
+                    long: '',
+                    lat: ''
+                }
+            }
 
-                            let id_omnibus = console.log(omnibus[0].contextElement.id)
-                            let distanciaRestante = distanciaParcial['dist'];
-                            let velMedia = prueba.calcularVelocidadPromedioDeOmnibus(linea,id_omnibus)
-                            console.log("Vel media", velMedia);
-                            let tea = distanciaRestante / velMedia;
-                            console.log("Tea aprox", tea);
+            const data = {
+                "lat": paradaAnterior.lat,
+                "lon": paradaAnterior.long,
+                "codigoParada": paradaAnterior.codigoParada
+            }
 
-
-
-
-                            resP(tea)
-                        } else {
-                            console.log(coordenadaParadaAnterior);
-                            distanciaParcial['dist'] = distanciaParcial['dist'] + radio *2;
-                            
-
-                            pruebaRecursiva(linea,coordenadaParadaAnterior.codigoParada);
-                        }
-                    }).catch(function (error) {
-                        console.log(error);
-                    });
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            return (data);
         })
-        .catch((error) => {
-            console.log(error);
-        });
-        } catch (error) {
-            rejP(error);
-        }
-        
-          
-    });
-        
-        
-        /**/
 }
 
-const getOrdinalParada = (codigoParada,linea) => {
+const buscarOmnibusDadaLineaUbicacionYRadio = async (linea, ubicacion, radio) => {
+    return axios.inst({
+        method: 'post',
+        url: `${externalURL}:1026/v1/queryContext`,
+        data: {
+            "entities": [{
+                "type": "Bus",
+                "isPattern": "true",
+                "id": ".*"
+            }],
+            "restriction": {
+                "scopes": [{
+                        "type": "FIWARE::Location",
+                        "value": {
+                            "circle": {
+                                "centerLatitude": `${ubicacion.latitude}`,
+                                "centerLongitude": `${ubicacion.longitude}`,
+                                "radius": `${radio*1.5}`
+                            }
+                        }
+                    },
+                    {
+                        "type": "FIWARE::StringQuery",
+                        "value": `linea=='${linea}'`
+                    }
+                ]
+            }
+        }
+    }).then(function (response) {
+        if (!response.data.errorCode) {
+            let listadoOmnibus = response.data.contextResponses;
+            let omnibusId = listadoOmnibus[0].contextElement.id;
+
+            const distanciaAlOmnibus = radio * 2; //calcular
+
+            return {
+                "omnibus_encontrado": true,
+                "omnibus_id": omnibusId,
+                "distancia": distanciaAlOmnibus
+            }
+        } else {
+            return {
+                "omnibus_encontrado": false,
+                "distancia": radio * 2
+            }
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
+}
+
+const obtenerTeaParaLineaYParada = async (linea, parada) => {
+    var distanciaDesdeParadaAOmnibus = 0;
+    var ominbusFueEncontrado = false;
+    var idParada = parada;
+    var tea = 0;
+
+    var location = {
+        "type": "Point"
+    }
+
+    while (!ominbusFueEncontrado) {
+        let paradaActual = await obtenerInformacionDeParada(idParada, linea);
+
+        if (idParada === parada) {
+            location["coordinates"] = [paradaActual.lat, paradaActual.long]
+        }
+
+        let ordinalParadaActual = paradaActual.ordinal;
+        let siguienteParada = await obtenerSiguienteParadaDadaLineaYOrdinalDeParada(linea, ordinalParadaActual);
+
+        let coordenadasParadaActual = {
+            "lat": paradaActual.lat,
+            "lon": paradaActual.long
+        };
+
+        let coordenadasSiguienteParada = {
+            "lat": siguienteParada.lat,
+            "lon": siguienteParada.lon
+        };
+
+        let centro = coordenadas.puntoMedio(coordenadasSiguienteParada, coordenadasParadaActual);
+        let radio = coordenadas.distancia(coordenadasSiguienteParada, coordenadasParadaActual) / 2;
+
+        const data = await buscarOmnibusDadaLineaUbicacionYRadio(linea, centro, radio);
+
+        const distancia = data["distancia"];
+
+        distanciaDesdeParadaAOmnibus += distancia;
+
+        if (data["omnibus_encontrado"] === true) {
+            ominbusFueEncontrado = true;
+            const velocidadPromedioOmnibus = calcularVelocidadPromedioDeOmnibus(linea, data["omnibus_id"]);
+            tea = (distanciaDesdeParadaAOmnibus / velocidadPromedioOmnibus);
+        } else {
+            idParada = siguienteParada.codigoParada;
+        }
+    }
+
+    const data = {
+        "linea": linea,
+        "parada": parada,
+        "location": location,
+        "tea": tea
+    }
+
+    return data;
+}
+
+const obtenerInformacionDeParada = async (codigoParada, linea) => {
     return axios.inst.get(`${externalURL}/api/trayectosporlinea`)
         .then((response) => {
             const trayectos = response.data.trayectos;
-            const ordinal = _.filter(trayectos, (parada) => {
+
+            const paradas = _.filter(trayectos, (parada) => {
                 return (parada.codigoParada == codigoParada && parada.linea == linea)
             });
 
-            return ordinal;
+            return paradas[0];
         })
         .catch((error) => {
             return null;
@@ -134,6 +243,10 @@ const getOrdinalParada = (codigoParada,linea) => {
 }
 
 module.exports = {
+    actualizarInfoDeOmnibus: actualizarInfoDeOmnibus,
+    calcularVelocidadPromedioDeOmnibus: calcularVelocidadPromedioDeOmnibus,
+    nuevosDatosDeOmnibusRecibidos: nuevosDatosDeOmnibusRecibidos,
+
     paradasParaLinea: (req, res) => {
         const linea = req.params.id_linea;
 
@@ -146,77 +259,17 @@ module.exports = {
             });
     },
 
-    coordenadasParadaAnterior: (req, res) => {
-        const ordinal_parada = req.params.ordinal_parada;
-        const linea = req.params.id_linea;
+    calcularTeaProximoOmnibus: async (req, res) => {
+        try {
+            const linea = req.params.id_linea;
+            const parada = req.params.id_parada;
 
-        axios.inst.get(`${serverURL}/lineas/${linea}`)
-            .then((response) => {
-                let paradaAnterior;
-                if (ordinal_parada > 1 && ordinal_parada < response.data.length + 1) {
-                    paradaAnterior = response.data[ordinal_parada - 2];
-                } else {
-                    paradaAnterior = {
-                        codigoParada: '',
-                        linea: '',
-                        ordinal: '',
-                        calle: '',
-                        esquina: '',
-                        long: '',
-                        lat: ''
-                    }
-                }
+            const data = await obtenerTeaParaLineaYParada(linea, parada);
 
-                const data = {
-                    "lat": paradaAnterior.lat,
-                    "lon": paradaAnterior.long,
-                    "codigoParada" : paradaAnterior.codigoParada
-                }
-                res.send(data);
-                return null;
-            })
-            .catch((error) => {
-                console.log(error)
-                return null;
-            });
-
-    },
-
-    calcularTeaProximoOmnibus: (req, res) => {
-        const linea = req.params.id_linea;
-        const parada = req.params.id_parada;
-        const teaEnSegundos = 342;
-        const location = {
-            "type": "Point",
-            "coordinates": [-56.19539, -34.90608]
+            res.send(data);
+        } catch (error) {
+            console.log("Error: ", error)
         }
-        
-        distanciaParcial['dist'] = 0;
-        pruebaRecursiva(linea,parada).then((result) => {
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-            console.log("oyti ek qy")
-        }).catch((error) => {
-            console.log("porque hay error", error)
-        });
-
-
-
-        const data = {
-            "linea": linea,
-            "parada": parada,
-            "location": location,
-            "tea": teaEnSegundos
-        }
-
-        res.send("termina en consola");
     }
+    
 }
