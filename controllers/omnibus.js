@@ -6,7 +6,6 @@ const externalURL = process.env.API_URL
 const getOmnibusParaLinea = (linea) => {
     return axios.inst.get(`${externalURL}:1026/v2/entities?q=linea==%27${linea}%27`)
     .then((response) => {
-        console.log("puto")
         return response.data;
     })
     .catch((error) => {

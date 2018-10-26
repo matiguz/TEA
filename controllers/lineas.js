@@ -2,10 +2,8 @@ const axios = require('../helpers/axios');
 const _ = require('lodash');
 
 const coordenadas = require('./coordenadas')
-const prueba = require('./prueba')
 
 const externalURL = process.env.API_URL
-const serverURL = process.env.SERVER_URL
 
 const tiempoMinimoDeViajeParaConsiderarDatosReales = parseFloat(process.env.TIEMPO_MINIMO_DE_VIAJE_EN_SEG_PARA_CONSIDERAR_DATOS_REALES)
 const velocidadEnMetrosPorSegundoPromedioDefecto = parseFloat(process.env.VELOCIDAD_PROMEDIO_POR_DEFECTO_EN_METROS_POR_SEGUNDO)
